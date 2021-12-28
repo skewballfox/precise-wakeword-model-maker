@@ -31,3 +31,6 @@ __pycache__/
 /all/
 /mycroft-precise/
 /models/
+
+# other
+audio/
