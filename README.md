@@ -1,4 +1,6 @@
 # wakeword-data-prep
+This is a work in progress! 
+
 After collecting your wake word data set with the [wakeword data collection tool](https://github.com/AmateurAcademic/wakeword-recorder-py), you can use this tool to:
 * optimally split the test/training set (and test this split)
 * automatically select best base model
