@@ -535,6 +535,27 @@ class PreciseModelingOperations:
         )
         # TODO: Include the average and standard deviation of the training/test set for each!
 
+    def get_optimal_training_model_analytics(self):
+        """This is a function that shows the average accuracy for training and test values by the best minimum loss of each model"""
+        # TODO: cross check parameters with get_models_analytics
+        (
+            average_acc_for_min_loss_models,
+            stdev_acc_for_min_loss_models,
+            average_val_acc_for_min_loss_models,
+            stdev_val_acc_for_min_loss_models,
+            average_acc_for_min_val_loss_models,
+            stdev_acc_for_min_val_loss_models,
+            average_val_acc_for_min_val_loss_models,
+            stdev_val_acc_for_min_val_loss_models,
+        ) = self.model_analytics_instance.get_model_analytics()
+        return (
+            average_acc_for_min_loss_models,
+            stdev_acc_for_min_loss_models,
+            average_val_acc_for_min_loss_models,
+            stdev_val_acc_for_min_loss_models,
+        )
+        # TODO: Include the average and standard deviation of the training/test set for each!
+
     def get_max_difference(self):
         # TODO: follow up, this is diabled for now
         difference_list = []
