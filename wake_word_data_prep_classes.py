@@ -377,12 +377,12 @@ class TrainTestSplit:
         files = []
         dataset_percent_size = float(0.8)
         source_directories = [
-            model_name + "/not-wake-word/generated/",
-            model_name + "/test/not-wake-word/generated/",
+            "out/" + model_name + "/not-wake-word/generated/",
+            "out/" + model_name + "/test/not-wake-word/generated/",
         ]
 
-        training_directory = model_name + "/not-wake-word/random/"
-        testing_directory = model_name + "/test/not-wake-word/random/"
+        training_directory = "out/" + model_name + "/not-wake-word/random/"
+        testing_directory = "out/" + model_name + "/test/not-wake-word/random/"
 
         basic_file_operations_instance = BasicFileOperations()
 
@@ -417,7 +417,7 @@ class PreciseModelingOperations:
             if not isdir("out"):
                 mkdir("out")
             source_directory = "out/" + model_name + "/"
-        print(source_directory)
+
         if epochs is None:
             # TODO: Maybe 50 is a good number? Last one was 60.
             # TODO: change over to optimizing the training set first, then perhaps once the collection for test builds enough, use that.
@@ -460,7 +460,7 @@ class PreciseModelingOperations:
         return stdout[0].decode("utf-8").split("\n")
 
     def get_last_epoch_model_info(self, model_name, training_run):
-        print(training_run)
+
         last_epoch = training_run[-2:]
         last_epoch_values = last_epoch[0].split(" - ")
         model_accuracy = {}
@@ -571,15 +571,16 @@ class PreciseModelingOperations:
         basic_file_operations_instance = BasicFileOperations()
         for model in self.models:
             if model is not selected_model_name:
-                model_directory = model + "/"
+                model_directory = "out/" + model + "/"
                 basic_file_operations_instance.delete_directory(model_directory)
 
     def delete_model(self, model):
         basic_file_operations_instance = BasicFileOperations()
         model_extensions = [".logs", ".net", ".epoch", ".net.params", ".trained.txt"]
+
         for extension in model_extensions:
-            file_to_delete = model + extension
-            print(file_to_delete)
+            file_to_delete = "out/" + model + extension
+
             if extension is ".logs":
                 basic_file_operations_instance.delete_directory(file_to_delete)
             elif extension is ".net":
@@ -609,8 +610,8 @@ class PreciseModelingOperations:
         model_extensions = [".net", ".epoch", ".net.params", ".trained.txt", ".logs"]
 
         for extension in model_extensions:
-            file_to_rename = model_name + extension
-            new_file_name = selected_model_name + extension
+            file_to_rename = "out/" + model_name + extension
+            new_file_name = "out/" + selected_model_name + extension
             if extension is ".logs":
                 basic_file_operations_instance.rename_directory(
                     file_to_rename + "/", new_file_name + "/"
@@ -632,20 +633,20 @@ class PreciseModelingOperations:
         ]
 
         for extension in model_extensions:
-            file_to_copy = model_name + extension
-            renamed_copy = model_name + "_tmp_copy" + extension
+            file_to_copy = "out/" + model_name + extension
+            renamed_copy = "out/" + model_name + "_tmp_copy" + extension
             basic_file_operations_instance.backup_file(file_to_copy, renamed_copy)
         return model_name + "_tmp_copy"
 
     def incremental_training(self, model_name, incremental_data_directory):
         # cool idea: number of files done, number remaining?
-        source_directory = model_name + "/"
+        source_directory = "out/" + model_name + "/"
         # copy model to same path as model_name + '_tmp_copy'
         temporary_model_name = self.copy_model(model_name)
         training_output = subprocess.Popen(
             [
                 "precise-train-incremental",
-                temporary_model_name + ".net",
+                "out/" + temporary_model_name + ".net",
                 source_directory,
                 "-r",
                 incremental_data_directory,
@@ -672,7 +673,7 @@ class PreciseModelingOperations:
         # precise-add-noise automatically performs background mixing on sub-directories
         # perhaps I should run multiple instances and only target specific directories?
         basic_file_operations_instance = BasicFileOperations()
-        model_directory = model_name + "/"
+        model_directory = "out/" + model_name + "/"
         destination_directory = model_directory + "background_noise/"
         basic_file_operations_instance.make_directory(destination_directory)
         noise_generation_output = subprocess.Popen(
@@ -695,7 +696,7 @@ class PreciseModelingOperations:
     ):
         # should this be in the basic file operations?
         basic_file_operations_instance = BasicFileOperations()
-        model_directory = model_name + "/"
+        model_directory = "out/" + model_name + "/"
         for source, destination in zip(source_directories, destination_directories):
             source = model_directory + source
             destination = model_directory + destination
@@ -729,7 +730,7 @@ class GaussianNoiseHandler:
 
     def add_gaussian_noise_to_directory(self, model_name, directory):
         basic_file_operations_instance = BasicFileOperations()
-        source_directory = model_name + "/" + directory
+        source_directory = "out/" + model_name + "/" + directory
         files = basic_file_operations_instance.get_files(source_directory)
         for file in files:
             self.add_gaussian_noise(file, source_directory)

@@ -28,7 +28,7 @@ def data_generation_flow(
             )
         )
     noise_destination_directory = (
-        wakeword_model_name + "/random/non-utterances/pdsounds_march2009/"
+        "out/" + wakeword_model_name + "/random/non-utterances/pdsounds_march2009/"
     )
     basic_file_operations_instance.convert_mp3s_in_directory_to_wavs(
         noise_directory, noise_destination_directory
