@@ -1,10 +1,11 @@
 import random
 import os
-from os import listdir
+from os import listdir, mkdir
 from os.path import isfile, isdir, join
 import shutil
 from numpy.lib.function_base import copy
 from pydub import AudioSegment
+
 
 import subprocess
 import statistics
@@ -200,7 +201,7 @@ class BasicFileOperations:
         source_directory,
         destination_directory,
     ):
-        # This will take a directorey with a huge amount of files and break them down into smaller directories
+        # This will take a directory with a huge amount of files and break them down into smaller directories
         # It can have a max number of files (might have to refactor get_files for getting only a max number)
         directory_number = 1
         file_count = 1
@@ -357,8 +358,10 @@ class TrainTestSplit:
         # This will run when the user selects the default action to randomly perform
         # TODO: test-train-splitting 5 times to obtain the best data distribution: Perhaps 10 to be sure?
         model_names = [root_model_name + "_" + str(i + 1) for i in range(10)]
+        if not isdir("out"):
+            mkdir("out")
         for model in model_names:
-            destination_directory = model + "/"
+            destination_directory = "out/" + model + "/"
             self.split_multiple_directories(
                 source_directory,
                 destination_directory,
@@ -411,8 +414,10 @@ class PreciseModelingOperations:
         # TODO: better code for subprocess? What about closing when done? Should I use 'with'?
 
         if source_directory is None:
-            source_directory = model_name + "/"
-
+            if not isdir("out"):
+                mkdir("out")
+            source_directory = "out/" + model_name + "/"
+        print(source_directory)
         if epochs is None:
             # TODO: Maybe 50 is a good number? Last one was 60.
             # TODO: change over to optimizing the training set first, then perhaps once the collection for test builds enough, use that.
@@ -428,7 +433,7 @@ class PreciseModelingOperations:
                     "-b",
                     "100",
                     "-sb",
-                    model_name + ".net",
+                    "out/" + model_name + ".net",
                     source_directory,
                 ],
                 stdout=subprocess.PIPE,
@@ -444,7 +449,7 @@ class PreciseModelingOperations:
                     "-b",
                     "100",
                     "-sb",
-                    model_name + ".net",
+                    "out/" + model_name + ".net",
                     source_directory,
                 ],
                 stdout=subprocess.PIPE,
@@ -455,6 +460,7 @@ class PreciseModelingOperations:
         return stdout[0].decode("utf-8").split("\n")
 
     def get_last_epoch_model_info(self, model_name, training_run):
+        print(training_run)
         last_epoch = training_run[-2:]
         last_epoch_values = last_epoch[0].split(" - ")
         model_accuracy = {}
