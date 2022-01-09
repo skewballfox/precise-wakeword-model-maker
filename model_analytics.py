@@ -104,26 +104,45 @@ class ModelAnalytics:
         acc_for_min_val_loss_models = [item[1][1]['minimum_loss_val_accuracy']['acc'] for item in self.models.items()]
         val_acc_for_min_val_loss_models = [item[1][1]['minimum_loss_val_accuracy']['val_acc'] for item in self.models.items()]
         
-        return (acc_for_min_loss_models, val_acc_for_min_loss_models, acc_for_min_val_loss_models, val_acc_for_min_val_loss_models)
+        return (acc_for_min_loss_models,
+        val_acc_for_min_loss_models,
+        acc_for_min_val_loss_models,
+        val_acc_for_min_val_loss_models
+        )
 
     def get_max_accuracies_over_all_models(self):
         acc_for_min_loss_models, val_acc_for_min_loss_models, acc_for_min_val_loss_models, val_acc_for_min_val_loss_models = self.get_model_accuracies()
         max_acc_for_min_loss_model = max(acc_for_min_loss_models)
         
-        #TODO: get same model value of val_acc_for_min_loss_models
         max_val_acc_for_min_val_loss_model = max(val_acc_for_min_val_loss_models)
-        #TODO: get same model value of acc_for_min_val_loss_models
+
         return (max_acc_for_min_loss_model, max_val_acc_for_min_val_loss_model)
 
-    #print(get_max_accuracies_over_all_models(models))
 
     def get_model_analytics(self):
+        '''returns the average accuracy for all of the models, it returns the analytics for both the epoch with the lowest loss and the epoch with the lowest val_loss'''
         acc_for_min_loss_models, val_acc_for_min_loss_models, val_acc_for_min_val_loss_models, acc_for_min_val_loss_models = self.get_model_accuracies()
-        return (statistics.mean(acc_for_min_loss_models), statistics.stdev(acc_for_min_loss_models), statistics.mean(val_acc_for_min_loss_models), statistics.stdev(val_acc_for_min_loss_models), statistics.mean(acc_for_min_val_loss_models), statistics.stdev(acc_for_min_val_loss_models), statistics.mean(val_acc_for_min_val_loss_models), statistics.stdev(val_acc_for_min_val_loss_models))
+        average_acc_for_min_loss_models = statistics.mean(acc_for_min_loss_models)
+        stdev_acc_for_min_loss_models = statistics.stdev(acc_for_min_loss_models)
+        average_val_acc_for_min_loss_models = statistics.mean(val_acc_for_min_loss_models)
+        stdev_val_acc_for_min_loss_models = statistics.stdev(val_acc_for_min_loss_models)
+        average_acc_for_min_val_loss_models = statistics.mean(acc_for_min_val_loss_models)
+        stdev_acc_for_min_val_loss_models = statistics.stdev(acc_for_min_val_loss_models)
+        average_val_acc_for_min_val_loss_models = statistics.mean(val_acc_for_min_val_loss_models)
+        stdev_val_acc_for_min_val_loss_models = statistics.stdev(val_acc_for_min_val_loss_models)
+        
+        return (average_acc_for_min_loss_models,
+        stdev_acc_for_min_loss_models,
+        average_val_acc_for_min_loss_models,
+        stdev_val_acc_for_min_loss_models,
+        average_acc_for_min_val_loss_models,
+        stdev_acc_for_min_val_loss_models,
+        average_val_acc_for_min_val_loss_models,
+        stdev_val_acc_for_min_val_loss_models
+        )
 
-    #print(get_model_analytics(models))
 
-    def get_best_models(self):
+    def get_best_model_names(self):
         max_acc_for_min_loss_model, max_val_acc_for_min_val_loss_model = self.get_max_accuracies_over_all_models()
         best_models = []
         max_acc_for_min_loss_model_dict = {}
@@ -135,9 +154,12 @@ class ModelAnalytics:
             if item[1][1]['minimum_loss_val_accuracy']['val_acc'] == max_val_acc_for_min_val_loss_model:
                 max_val_acc_for_min_val_loss_model_dict[item[0]] = item[1][1]
                 best_models.append(max_val_acc_for_min_val_loss_model_dict)
-        return best_models
+        best_model_loss = best_models[0]
+        best_model_val_loss = best_models[1]
+        best_model_loss_name = list(best_model_loss.keys())[0]
+        best_model_val_loss_name = list(best_model_val_loss.keys())[0]
+        return (best_model_loss_name, best_model_val_loss_name)
 
-    """best_models = get_best_models(models)"""
 
     # This is used when the training is run for -sb with the loss being the measure (default)
     @staticmethod
