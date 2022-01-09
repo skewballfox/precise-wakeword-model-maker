@@ -7,7 +7,6 @@ from numpy.lib.function_base import copy
 from pydub import AudioSegment
 
 import subprocess
-import statistics
 
 import numpy as np
 from scipy.io import wavfile
@@ -49,8 +48,8 @@ class BasicFileOperations:
             print(f"Error with {old_filename}")
 
     def backup_file(self, source_file, destination_file, source_directory=None):
-        # This will rename a file in a directory
-        # It will also copy the file to the destination directory
+        '''This will rename a file in a directory
+        It will also copy the file to the destination directory'''
         try:
             if source_directory:
                 shutil.copyfile(source_directory + source_file, source_directory + destination_file)
@@ -95,7 +94,6 @@ class BasicFileOperations:
     @staticmethod
     def rename_directory(source_directory, destination_directory):
         if os.path.exists(destination_directory):
-            # TODO: input from user to continue
             print(f'Directory {destination_directory} already exists')
         else:
             if os.path.exists(source_directory):
@@ -142,9 +140,11 @@ class BasicFileOperations:
             print('Conversion complete')
 
     def change_sample_rate_of_wav_file(self, file, source_directory, destination_directory):
-    # This will take a wav file and change the sample rate to 16000
+        '''This will take a wav file and change the sample rate to 16000 (required for precise)'''
+        #TODO: I think I might have messed something up here (maybe I fixed it?), retest this!
         if file.endswith('.wav'):
-            try:# TODO: make a function that returns the model analytics
+            sound = AudioSegment.from_file(source_directory+file)
+            try:
                 if sound.frame_rate != 16000:
                     sound = sound.set_frame_rate(16000)
                     sound = sound.set_channels(1)
@@ -166,8 +166,8 @@ class BasicFileOperations:
                 self.copy_file(file, source_directory, destination_directory)
 
     def split_files_into_multiple_directories(self, files, number_of_files_per_directory, source_directory, destination_directory):
-        # This will take a directorey with a huge amount of files and break them down into smaller directories
-        # It can have a max number of files (might have to refactor get_files for getting only a max number)
+        '''This will take a directorey with a huge amount of files and break them down into smaller directories
+        It can have a max number of files (might have to refactor get_files for getting only a max number)'''
         directory_number = 1
         file_count = 1
         for file in files:
@@ -205,7 +205,7 @@ class TrainTestSplit:
         selected_testing_files = []
         count = 0
         for file in files:
-            #TODO: add in this instead for final version file_number = int(file.split('_')[-1].replace('.wav', ''))
+            #TODO: add in this instead for final version file_number = int(file.split('_')[-1].replace('.wav', '')), and test it
             if count < 3:
                 selected_training_files.append(file)
                 count = count + 1
@@ -215,9 +215,9 @@ class TrainTestSplit:
         return selected_training_files, selected_testing_files
 
     def split_directory(self, source_directory, training_directory, testing_directory, split_type):
+        '''Function to split one directory and output the test and training directories
+        pass split_type to use either random or even_odd'''
         dataset_percent_size = float(0.8)
-        # function to split one directory and output the test and training directories
-        # pass split_type to use either random or even_odd
         basic_file_operations_instance = BasicFileOperations()
         files = basic_file_operations_instance.get_files(source_directory)
         if split_type is 'random':
@@ -252,8 +252,7 @@ class TrainTestSplit:
                     self.split_directory(source_directory+sub_directory, training_directory, testing_directory, split_type)
 
     def experimental_splits(self, source_directory, random_split_directories, even_odd_split_directories, three_four_split_directories, root_model_name):
-        # This will run when the user selects the default action to randomly perform
-        #TODO: test-train-splitting 5 times to obtain the best data distribution: Perhaps 10 to be sure?
+        '''This will run when the user selects the default action to randomly perform'''
         model_names = [root_model_name + '_' + str(i+1) for i in range(10)]
         for model in model_names:
             destination_directory = model + '/'
@@ -277,7 +276,6 @@ class TrainTestSplit:
         
         for source_directory in source_directories:
             files +=(basic_file_operations_instance.get_files(source_directory))
-        # TODO: Need to go through again to copy and delete
         random_selected_training_files, random_selected_testing_files = self.random_training_test_split(files, dataset_percent_size)
         for source_directory in source_directories:
             basic_file_operations_instance.copy_directory(random_selected_training_files, source_directory, training_directory)
@@ -312,25 +310,11 @@ class PreciseModelingOperations:
         stdout = training_output.communicate()
         return stdout[0].decode('utf-8').split('\n')
 
-    def get_last_epoch_model_info(self, model_name, training_run):
-        last_epoch = training_run[-2:]
-        last_epoch_values = last_epoch[0].split(' - ')
-        model_accuracy = {}
-        acc = float(last_epoch_values[3].strip('acc: '))
-        val_acc = float(last_epoch_values[5].strip('val_acc: '))
-        difference = abs(acc - val_acc)
-        model_accuracy['acc'] = acc
-        model_accuracy['val_acc'] = val_acc
-        model_accuracy['difference'] = difference
-        self.models[model_name] = model_accuracy
 
-    #TODO: This and all of the other stuff for models will be from model_analytics.py
     def get_model_info(self, model_name, training_run):
         self.model_analytics_instance.add_model(model_name, training_run)
-        #return self.models['model_name']
 
-    #TODO: re-factor get_model_analytics to work with the new model_info
-    #TODO: then re-factor:
+    #TODO: re-factor:
     # get_max_difference
     # remove_model_with_max_difference,
     # get_max_testing_accuracy
@@ -340,35 +324,21 @@ class PreciseModelingOperations:
         for model_name in model_names:
             #TODO: add optional parameter for sb to precise_train
             training_run = self.run_precise_train(model_name)
-            # TODO: This will be replaced with get_model_info
-            #self.get_last_epoch_model_info(model_name, training_run)
             self.model_analytics_instance.add_model(model_name, training_run)
+        return self.model_analytics_instance.models
 
-
-    def get_models_analytics(self):
-        # average and standard deviation of acc and val_acc
-        #TODO: This will be deprecated in favor of model_analytics.py
-        #TODO: This will be turned into a get_optimal_test_models_analytics 
-        acc_list = []
-        val_acc_list = []
-
-        for item in self.models.items():
-            acc = item[1]['acc']
-            acc_list.append(acc)
-            val_acc = item[1]['val_acc']
-            val_acc_list.append(val_acc)
-        return statistics.mean(val_acc_list), statistics.stdev(val_acc_list), statistics.mean(acc_list), statistics.stdev(acc_list)
 
     def get_optimal_training_model_analytics(self):
         '''This is a function that shows the average accuracy for training and test values by the best minimum loss of each model'''
-        #TODO: cross check parameters with get_models_analytics
         average_acc_for_min_loss_models, stdev_acc_for_min_loss_models, average_val_acc_for_min_loss_models, stdev_val_acc_for_min_loss_models, average_acc_for_min_val_loss_models, stdev_acc_for_min_val_loss_models, average_val_acc_for_min_val_loss_models, stdev_val_acc_for_min_val_loss_models = self.model_analytics_instance.get_model_analytics()
-        return average_acc_for_min_loss_models, stdev_acc_for_min_loss_models, average_val_acc_for_min_loss_models, stdev_val_acc_for_min_loss_models
-        #TODO: Include the average and standard deviation of the training/test set for each!
-    
+        return (average_acc_for_min_loss_models,
+        stdev_acc_for_min_loss_models,
+        average_val_acc_for_min_loss_models,
+        stdev_val_acc_for_min_loss_models
+        )
 
     def get_max_difference(self):
-        # TODO: follow up, this is diabled for now
+        # TODO: follow up, this is disabled for now
         difference_list = []
 
         for item in self.models.items():
@@ -377,8 +347,8 @@ class PreciseModelingOperations:
         return max(difference_list)
 
     def remove_model_with_max_difference(self):
-        # TODO: follow up, this is diabled for now
-        # returns dictionary without max difference model
+        '''returns dictionary without max difference model'''
+        #TODO: follow up, this is diabled for now
         best_models = {}
         difference_max = self.get_max_difference()
 
@@ -412,29 +382,14 @@ class PreciseModelingOperations:
             acc_list.append(acc)
         return max(acc_list)
 
-    def pick_best_model(self):
-        """# pick model with max val_acc (return model)
-        best_models = self.remove_model_with_max_difference()
-        acc_max = self.get_max_training_accuracy(best_models)
-        #val_acc_max = self.get_max_testing_accuracy(best_models)
-
-        for item in best_models.items():
-            if item[1]['acc'] is acc_max:
-               selected_model = item
-               selected_model_name = selected_model[0]
-
-        selected_model_results = selected_model[1]
-        return selected_model_name, selected_model_results"""
-        best_models = self.model_analytics_instance.get_best_models()
-        print(f'best models: {best_models}')
-        best_training_set_accuracy_model = best_models[0]
-        best_training_set_accuracy_model_name = best_training_set_accuracy_model.keys()
-        return best_training_set_accuracy_model
+    def get_best_loss_model(self):
+        best_model_loss_name, best_val_loss_name = self.model_analytics_instance.get_best_model_names()
+        return best_model_loss_name, self.models[best_model_loss_name]
 
 
     def delete_experiment_directories(self, selected_model_name):
-        # get all directories
-        # remove if not best model directory
+        '''get all directories,
+        remove if not best model directory'''
         basic_file_operations_instance = BasicFileOperations()
         for model in self.models:
             if model is not selected_model_name:
@@ -492,7 +447,6 @@ class PreciseModelingOperations:
                 basic_file_operations_instance.rename_file(file_to_rename, new_file_name)
 
 
-    # TODO: write a function to make a temporary copy of the model
     def copy_model(self, model_name):
         basic_file_operations_instance = BasicFileOperations()
         # I removed .training.txt from copying as there is none for this model since it only runs with normal training
@@ -511,7 +465,7 @@ class PreciseModelingOperations:
         
 
     def incremental_training(self, model_name, incremental_data_directory):
-        # cool idea: number of files done, number remaining?
+        #TODO: cool idea: number of files done, number remaining?
         source_directory = model_name + '/'
         # copy model to same path as model_name + '_tmp_copy'
         temporary_model_name = self.copy_model(model_name)
@@ -533,8 +487,6 @@ class PreciseModelingOperations:
 
     @staticmethod
     def add_background_noise(model_name, noise_directory):
-        # precise-add-noise automatically performs background mixing on sub-directories
-        # perhaps I should run multiple instances and only target specific directories?
         basic_file_operations_instance = BasicFileOperations()
         model_directory = model_name + '/'
         destination_directory = model_directory + 'background_noise/'
@@ -553,11 +505,11 @@ class PreciseModelingOperations:
             destination = model_directory + destination
             files = basic_file_operations_instance.get_files(source)
             basic_file_operations_instance.copy_directory(files, source, destination)
-            #TODO TEST THIS
         basic_file_operations_instance.delete_directory(model_directory + 'background_noise/')
 
 
     def listen(self):
+        '''I have so far decided against running the listen function of precise, but if anyone ever wants, here's where I would put it'''
         pass
 
     
