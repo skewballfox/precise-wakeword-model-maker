@@ -13,6 +13,8 @@ import statistics
 import numpy as np
 from scipy.io import wavfile
 
+from model_analytics import ModelAnalytics
+
 # TODO: split up the classes into separate files
 # TODO: refactor classes
 
@@ -407,7 +409,8 @@ class TrainTestSplit:
 
 class PreciseModelingOperations:
     def __init__(self):
-        self.models = {}
+        self.model_analytics_instance = ModelAnalytics()
+        self.models = self.model_analytics_instance.models
 
     @staticmethod
     def run_precise_train(model_name, epochs=None, source_directory=None):
@@ -474,7 +477,8 @@ class PreciseModelingOperations:
 
     # TODO: This and all of the other stuff for models will be from model_analytics.py
     def get_model_info(self, model_name, training_run):
-        pass
+        self.model_analytics_instance.add_model(model_name, training_run)
+        # return self.models['model_name']
 
     # TODO: re-factor get_model_analytics to work with the new model_info
     # TODO: then re-factor:
@@ -485,13 +489,16 @@ class PreciseModelingOperations:
 
     def run_experimental_training(self, model_names):
         for model_name in model_names:
+            # TODO: add optional parameter for sb to precise_train
             training_run = self.run_precise_train(model_name)
             # TODO: This will be replaced with get_model_info
-            self.get_last_epoch_model_info(model_name, training_run)
-            # self.get_model_info(model_name, training_run)
+            # self.get_last_epoch_model_info(model_name, training_run)
+            self.model_analytics_instance.add_model(model_name, training_run)
 
     def get_models_analytics(self):
         # average and standard deviation of acc and val_acc
+        # TODO: This will be deprecated in favor of model_analytics.py
+        # TODO: This will be turned into a get_optimal_test_models_analytics
         acc_list = []
         val_acc_list = []
 
@@ -506,6 +513,48 @@ class PreciseModelingOperations:
             statistics.mean(acc_list),
             statistics.stdev(acc_list),
         )
+
+    def get_optimal_training_model_analytics(self):
+        """This is a function that shows the average accuracy for training and test values by the best minimum loss of each model"""
+        # TODO: cross check parameters with get_models_analytics
+        (
+            average_acc_for_min_loss_models,
+            stdev_acc_for_min_loss_models,
+            average_val_acc_for_min_loss_models,
+            stdev_val_acc_for_min_loss_models,
+            average_acc_for_min_val_loss_models,
+            stdev_acc_for_min_val_loss_models,
+            average_val_acc_for_min_val_loss_models,
+            stdev_val_acc_for_min_val_loss_models,
+        ) = self.model_analytics_instance.get_model_analytics()
+        return (
+            average_acc_for_min_loss_models,
+            stdev_acc_for_min_loss_models,
+            average_val_acc_for_min_loss_models,
+            stdev_val_acc_for_min_loss_models,
+        )
+        # TODO: Include the average and standard deviation of the training/test set for each!
+
+    def get_optimal_training_model_analytics(self):
+        """This is a function that shows the average accuracy for training and test values by the best minimum loss of each model"""
+        # TODO: cross check parameters with get_models_analytics
+        (
+            average_acc_for_min_loss_models,
+            stdev_acc_for_min_loss_models,
+            average_val_acc_for_min_loss_models,
+            stdev_val_acc_for_min_loss_models,
+            average_acc_for_min_val_loss_models,
+            stdev_acc_for_min_val_loss_models,
+            average_val_acc_for_min_val_loss_models,
+            stdev_val_acc_for_min_val_loss_models,
+        ) = self.model_analytics_instance.get_model_analytics()
+        return (
+            average_acc_for_min_loss_models,
+            stdev_acc_for_min_loss_models,
+            average_val_acc_for_min_loss_models,
+            stdev_val_acc_for_min_loss_models,
+        )
+        # TODO: Include the average and standard deviation of the training/test set for each!
 
     def get_max_difference(self):
         # TODO: follow up, this is diabled for now
@@ -552,7 +601,7 @@ class PreciseModelingOperations:
         return max(acc_list)
 
     def pick_best_model(self):
-        # pick model with max val_acc (return model)
+        """# pick model with max val_acc (return model)
         best_models = self.remove_model_with_max_difference()
         acc_max = self.get_max_training_accuracy(best_models)
         # val_acc_max = self.get_max_testing_accuracy(best_models)
@@ -563,7 +612,12 @@ class PreciseModelingOperations:
                 selected_model_name = selected_model[0]
 
         selected_model_results = selected_model[1]
-        return selected_model_name, selected_model_results
+        return selected_model_name, selected_model_results"""
+        best_models = self.model_analytics_instance.get_best_models()
+        print(f"best models: {best_models}")
+        best_training_set_accuracy_model = best_models[0]
+        best_training_set_accuracy_model_name = best_training_set_accuracy_model.keys()
+        return best_training_set_accuracy_model
 
     def delete_experiment_directories(self, selected_model_name):
         # get all directories
