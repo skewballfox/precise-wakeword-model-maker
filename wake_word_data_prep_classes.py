@@ -558,7 +558,7 @@ class PreciseModelingOperations:
         basic_file_operations_instance = BasicFileOperations()
         for model in self.models:
             if model is not selected_model_name:
-                model_directory = model + "/"
+                model_directory = "out/" + model + "/"
                 basic_file_operations_instance.delete_directory(model_directory)
 
     def delete_model(self, model):
