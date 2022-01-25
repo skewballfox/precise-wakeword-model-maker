@@ -405,6 +405,7 @@ class TrainTestSplit:
             basic_file_operations_instance.copy_directory(
                 random_selected_testing_files, source_directory, testing_directory
             )
+
         print(
             "Finished spliting all files in generated test and training to random test and training directories"
         )
@@ -580,8 +581,8 @@ class PreciseModelingOperations:
 
     def delete_generated_directories(self, model_name):
         source_directories = [
-            model_name + "/not-wake-word/generated/",
-            model_name + "/test/not-wake-word/generated/",
+            "out/" + model_name + "/not-wake-word/generated/",
+            "out/" + model_name + "/test/not-wake-word/generated/",
         ]
         basic_file_operations_instance = BasicFileOperations()
         for directory in source_directories:

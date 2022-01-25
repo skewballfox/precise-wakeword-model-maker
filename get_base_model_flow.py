@@ -20,7 +20,7 @@ def move_random_user_collection(source_directory):
         source_directory, "random"
     )
     random_destination_directory = basic_file_operations_instance.create_directory(
-        source_directory, "user_collected/"
+        random_source_directory, "user_collected/"
     )
 
     if not os.path.exists(random_destination_directory):
