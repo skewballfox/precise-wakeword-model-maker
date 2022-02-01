@@ -1,5 +1,5 @@
 from traceback import print_exc
-from wake_word_data_prep_classes import BasicFileOperations, PreciseModelingOperations
+from data_prep.precise_ops import BasicFileOperations, PreciseModelingOperations
 from get_base_model_flow import incremental_training_flow
 from get_base_model_flow import train_model_flow
 
