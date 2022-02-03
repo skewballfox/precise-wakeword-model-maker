@@ -1,7 +1,7 @@
 from traceback import print_exc
 from data_prep.precise_ops import BasicFileOperations, PreciseModelingOperations
-from get_base_model_flow import incremental_training_flow
-from get_base_model_flow import train_model_flow
+from data_prep.get_base_model_flow import incremental_training_flow
+from data_prep.get_base_model_flow import train_model_flow
 
 basic_file_operations_instance = BasicFileOperations()
 precise_modeling_operations_instance = PreciseModelingOperations()

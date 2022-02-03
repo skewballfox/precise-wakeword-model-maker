@@ -1,3 +1,4 @@
+import os
 from data_prep.dialog_handler import DialogHandler
 from data_prep.precise_ops import (
     BasicFileOperations,
@@ -5,57 +6,91 @@ from data_prep.precise_ops import (
     PreciseModelingOperations,
     GaussianNoiseHandler,
 )
-from get_base_model_flow import get_base_model_flow
+from data_prep.get_base_model_flow import get_base_model_flow
 from data_prep.data_generation_flow import data_generation_flow
 from data_prep.further_data_generation_flow import further_data_generation_flow
 
 
 import sys
 import json
+import getopt
+
 
 # source_directory = str(input("Please enter the relative path to the wakeword recordings directory (ie audio/):\n"))
 
 # wakeword_model_name = str(input("Please enter the name you want to give the wakeword model (ie. 'wakeword_model'):\n"))
 
 # TODO: write data requirements for each flow (include urls)
+with open(
+    os.path.join(os.path.dirname(__file__), "..", "data_prep_user_configuration.json"),
+    "r",
+) as file:
+    user_configuration_dictionary = json.load(file)
+
+source_directory = user_configuration_dictionary["audio_source_directory"]
+wakeword_model_name = user_configuration_dictionary["wakeword_model_name"]
+pdsounds_directory = user_configuration_dictionary["pdsounds_directory"]
+directories_to_process = user_configuration_dictionary[
+    "extra_audio_directories_to_process"
+]
+extra_audio_directories_labels = user_configuration_dictionary[
+    "extra_audio_directories_labels"
+]
+max_files_from_source_directory = user_configuration_dictionary[
+    "max_files_from_source_directory"
+]
+max_files_per_destination_directory = user_configuration_dictionary[
+    "max_files_per_destination_directory"
+]
+
+with open(
+    os.path.join(
+        os.path.dirname(__file__), "..", "data_prep_system_configuration.json"
+    ),
+    "r",
+) as file:
+    system_configuration_dictionary = json.load(file)
+
+random_split_directories = system_configuration_dictionary["random_split_directories"]
+even_odd_split_directories = system_configuration_dictionary[
+    "even_odd_split_directories"
+]
+three_four_split_directories = system_configuration_dictionary[
+    "three_four_split_directories"
+]
+root_model_name = system_configuration_dictionary["root_model_name"]
+source_directories = system_configuration_dictionary["source_directories"]
+destination_directories = system_configuration_dictionary["destination_directories"]
+directories_to_gauss = system_configuration_dictionary["directories_to_gauss"]
+
+
+def do_all():
+    get_base_model_flow(
+        source_directory,
+        random_split_directories,
+        even_odd_split_directories,
+        three_four_split_directories,
+        root_model_name,
+        wakeword_model_name,
+    )
+    data_generation_flow(
+        wakeword_model_name,
+        source_directories,
+        destination_directories,
+        directories_to_gauss,
+        pdsounds_directory,
+    )
+    further_data_generation_flow(
+        directories_to_process,
+        extra_audio_directories_labels,
+        max_files_from_source_directory,
+        max_files_per_destination_directory,
+        wakeword_model_name,
+    )
 
 
 def interactive():
     cli_text = "Please enter your choice\n1. Optimally split and create a base model from wake-word-recorder data\n2. Generate extra data\n3. Do it all\n\n"
-
-    with open("data_prep_user_configuration.json", "r") as file:
-        user_configuration_dictionary = json.load(file)
-    source_directory = user_configuration_dictionary["audio_source_directory"]
-    wakeword_model_name = user_configuration_dictionary["wakeword_model_name"]
-    pdsounds_directory = user_configuration_dictionary["pdsounds_directory"]
-    directories_to_process = user_configuration_dictionary[
-        "extra_audio_directories_to_process"
-    ]
-    extra_audio_directories_labels = user_configuration_dictionary[
-        "extra_audio_directories_labels"
-    ]
-    max_files_from_source_directory = user_configuration_dictionary[
-        "max_files_from_source_directory"
-    ]
-    max_files_per_destination_directory = user_configuration_dictionary[
-        "max_files_per_destination_directory"
-    ]
-
-    with open("data_prep_system_configuration.json", "r") as file:
-        system_configuration_dictionary = json.load(file)
-    random_split_directories = system_configuration_dictionary[
-        "random_split_directories"
-    ]
-    even_odd_split_directories = system_configuration_dictionary[
-        "even_odd_split_directories"
-    ]
-    three_four_split_directories = system_configuration_dictionary[
-        "three_four_split_directories"
-    ]
-    root_model_name = system_configuration_dictionary["root_model_name"]
-    source_directories = system_configuration_dictionary["source_directories"]
-    destination_directories = system_configuration_dictionary["destination_directories"]
-    directories_to_gauss = system_configuration_dictionary["directories_to_gauss"]
 
     dialog_handler_instance = DialogHandler("dialog.json", "main_menu_dialog")
 
@@ -106,7 +141,25 @@ def interactive():
             )
 
         elif cli_choice == "4":
-            get_base_model_flow(
+            do_all()
+            sys.exit()
+
+        elif cli_choice == "5":
+            sys.exit()
+
+
+def cli(arg_list):
+    # TODO add more options to override configs
+    short_options = "hbgea"
+    long_options = ["help", "base-model", "generate-data", "generate-extra", "all"]
+    args, _ = getopt.getopt(arg_list, short_options, long_options)
+    print(args)
+    for arg, _ in args:
+        print(arg)
+        if arg in ("-h", "--help"):
+            print("unimplented, please try again later")
+        elif arg in ("-b", "--base-model"):
+            base_model_info = get_base_model_flow(
                 source_directory,
                 random_split_directories,
                 even_odd_split_directories,
@@ -114,13 +167,16 @@ def interactive():
                 root_model_name,
                 wakeword_model_name,
             )
+        elif arg in ("-g", "--generate-data"):
             data_generation_flow(
                 wakeword_model_name,
                 source_directories,
                 destination_directories,
                 directories_to_gauss,
                 pdsounds_directory,
+                base_model_info,
             )
+        elif arg in ("-e", "--generate-extra"):
             further_data_generation_flow(
                 directories_to_process,
                 extra_audio_directories_labels,
@@ -128,9 +184,9 @@ def interactive():
                 max_files_per_destination_directory,
                 wakeword_model_name,
             )
-            sys.exit()
-
-        elif cli_choice == "5":
+        elif arg in ("-a", "--all"):
+            do_all()
+            print("done")
             sys.exit()
 
 
