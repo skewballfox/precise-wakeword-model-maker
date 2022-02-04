@@ -159,6 +159,7 @@ def cli(arg_list):
         if arg in ("-h", "--help"):
             print("unimplented, please try again later")
         elif arg in ("-b", "--base-model"):
+
             base_model_info = get_base_model_flow(
                 source_directory,
                 random_split_directories,
@@ -168,14 +169,24 @@ def cli(arg_list):
                 wakeword_model_name,
             )
         elif arg in ("-g", "--generate-data"):
-            data_generation_flow(
-                wakeword_model_name,
-                source_directories,
-                destination_directories,
-                directories_to_gauss,
-                pdsounds_directory,
-                base_model_info,
-            )
+            if base_model_info is None:
+                data_generation_flow(
+                    wakeword_model_name,
+                    source_directories,
+                    destination_directories,
+                    directories_to_gauss,
+                    pdsounds_directory,
+                    base_model_info=None,
+                )
+            else:
+                data_generation_flow(
+                    wakeword_model_name,
+                    source_directories,
+                    destination_directories,
+                    directories_to_gauss,
+                    pdsounds_directory,
+                    base_model_info,
+                )
         elif arg in ("-e", "--generate-extra"):
             further_data_generation_flow(
                 directories_to_process,
