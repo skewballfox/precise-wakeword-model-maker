@@ -22,6 +22,7 @@ __pycache__/
 /*/wake-word/
 /*/not-wake-word/
 /*/test/
+/out/
 
 !requirements.txt
 
