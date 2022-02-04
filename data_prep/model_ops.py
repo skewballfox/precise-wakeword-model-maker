@@ -5,6 +5,11 @@ from numpy.lib.function_base import copy
 from os.path import isdir
 from os import mkdir
 
+# TODO: wrap this class around the data
+# and directories associated with each expiremental model
+class Model:
+    pass
+
 
 class TrainTestSplit:
     @staticmethod

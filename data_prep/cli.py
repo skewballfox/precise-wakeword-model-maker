@@ -112,16 +112,7 @@ def interactive():
 
         elif cli_choice == "2":
             # TODO: fix base_model_info, it doesn't show up in the flow
-            if base_model_info is None:
-                data_generation_flow(
-                    wakeword_model_name,
-                    source_directories,
-                    destination_directories,
-                    directories_to_gauss,
-                    pdsounds_directory,
-                    base_model_info=None,
-                )
-            else:
+            try:
                 data_generation_flow(
                     wakeword_model_name,
                     source_directories,
@@ -129,6 +120,15 @@ def interactive():
                     directories_to_gauss,
                     pdsounds_directory,
                     base_model_info,
+                )
+            except:
+                data_generation_flow(
+                    wakeword_model_name,
+                    source_directories,
+                    destination_directories,
+                    directories_to_gauss,
+                    pdsounds_directory,
+                    base_model_info=None,
                 )
 
         elif cli_choice == "3":
@@ -169,16 +169,7 @@ def cli(arg_list):
                 wakeword_model_name,
             )
         elif arg in ("-g", "--generate-data"):
-            if base_model_info is None:
-                data_generation_flow(
-                    wakeword_model_name,
-                    source_directories,
-                    destination_directories,
-                    directories_to_gauss,
-                    pdsounds_directory,
-                    base_model_info=None,
-                )
-            else:
+            try:
                 data_generation_flow(
                     wakeword_model_name,
                     source_directories,
@@ -186,6 +177,15 @@ def cli(arg_list):
                     directories_to_gauss,
                     pdsounds_directory,
                     base_model_info,
+                )
+            except:
+                data_generation_flow(
+                    wakeword_model_name,
+                    source_directories,
+                    destination_directories,
+                    directories_to_gauss,
+                    pdsounds_directory,
+                    base_model_info=None,
                 )
         elif arg in ("-e", "--generate-extra"):
             further_data_generation_flow(
