@@ -35,7 +35,7 @@ docker run -it \
 	* `wakeword_model_name` the name you want to give the wakeword model,
     * `pdsounds_directory` the directory to the mp3 (or wav) files: [pdsounds](http://pdsounds.tuxfamily.org/),
 	* `extra_audio_directories_to_process`, which are all of the extra audio datasets you have downloaded besides pdsounds,
-* and run `data_prep_ide.py`. 
+* and run `python -m data_prep`. 
 
 ##  Data
 It is important to note that downloading a lot of noise data is vital to producing a bullet proof wake word model. In addition it is important to note that data prep does not walk through sub directories of sound files. It only processes the top level directory. It is best to just dump audio files in the top level directory. The files can be in mp3 or wav format, data prep will convert them to wav with the the sample rate of `16000`.
