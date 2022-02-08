@@ -1,9 +1,9 @@
-from wake_word_data_prep_classes import (
+from data_prep.precise_ops import (
     BasicFileOperations,
     PreciseModelingOperations,
     GaussianNoiseHandler,
 )
-from get_base_model_flow import incremental_training_flow
+from data_prep.get_base_model_flow import incremental_training_flow
 
 basic_file_operations_instance = BasicFileOperations()
 precise_modeling_operations_instance = PreciseModelingOperations()

@@ -1,9 +1,9 @@
-{   "audio_source_directory": "flow_test_delete_after/",
-    "wakeword_model_name": "test_wakeword_model_delete_after",
-    "pdsounds_directory": "audio/flow_test_delete_after/pdsounds_march2009/mp3/",
-    "extra_audio_directories_to_process": [ 
-        "audio/noises/",
-        "audio/common_voice/"
+{
+    "audio_source_directory": "/home/skewballfox/Media/Data/azazel_wakeword_model/",
+    "wakeword_model_name": "azazel_wakeword_model",
+    "pdsounds_directory": "/home/skewballfox/Media/Data/pdsounds/mp3/",
+    "extra_audio_directories_to_process": [
+        "/home/skewballfox/Media/Data/OpenPathMusic/"
     ],
     "extra_audio_directories_labels": [
         "non-utterances",

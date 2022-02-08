@@ -1,10 +1,10 @@
-from wake_word_data_prep_classes import (
+from data_prep.precise_ops import (
     BasicFileOperations,
     TrainTestSplit,
     PreciseModelingOperations,
 )
 import os
-from dialog_handler import DialogHandler
+from data_prep.dialog_handler import DialogHandler
 
 train_test_split_instance = TrainTestSplit()
 precise_modeling_operations_instance = PreciseModelingOperations()
