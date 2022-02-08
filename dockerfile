@@ -29,7 +29,7 @@ RUN /app/.venv/bin/pip install pydub
 
 
 # I would love to start the container and it opens in the terminal in the venv with this script running, then a user can select which option they want, but it doesn't seem to work.
-#CMD "/app/.venv/bin/python" "/app/wake_word_data_prep_ide.py"
+#CMD "/app/.venv/bin/python" "-m data_prep"
 
 # So we start it with bash, a user types 'source .venv/bin/activate' and then runs the script "python wake_word_data_prep_ide.py"
 CMD bash
