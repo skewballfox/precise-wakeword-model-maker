@@ -8,7 +8,6 @@ After collecting your wake word data set with the [wakeword data collection tool
 * generate background noise
 * incrementally train through other noise (ie common voice, pd)
 
-NOTE: The model analytics doesn't always pick the best-best model, a refactor is on the way to ensure that the best models are always picked. But it still performs better than anything I have ever seen so....
 
 # How does it work?
 TODO: come up with really chill explaination about data categories, sub-categories they boost the model, optimizing model selection and training, noisy data generation, automatically incrementally collecting new data, and curriculum learning. 
