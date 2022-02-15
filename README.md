@@ -1,4 +1,5 @@
 # Precise Wakeword Model Maker
+![Wake word](https://github.com/secretsauceai/secret_sauce_ai/blob/main/SSAI_wakeword_scene_compressed.png?raw=true)
 This is a work in progress! 
 
 After collecting your wake word data set with the [wakeword data collection tool](https://github.com/AmateurAcademic/wakeword-recorder-py), you can use this tool to:
